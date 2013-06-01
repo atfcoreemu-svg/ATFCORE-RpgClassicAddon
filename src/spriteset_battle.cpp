@@ -19,6 +19,7 @@
 #include "spriteset_battle.h"
 #include "cache.h"
 #include "game_battler.h"
+#include "game_enemy.h"
 #include "game_enemyparty.h"
 #include "game_temp.h"
 #include "main_data.h"
@@ -30,10 +31,10 @@ Spriteset_Battle::Spriteset_Battle() {
 	//}
 
 	// Create the enemy sprites
-	boost::ptr_vector<Game_Battler>::iterator it;
-	boost::ptr_vector<Game_Battler>& enemies = Game_EnemyParty::GetEnemies();
+	boost::ptr_vector<Game_Enemy>::iterator it;
+	boost::ptr_vector<Game_Enemy>& enemies = Game_EnemyParty::GetEnemies();
 	for (it = enemies.begin(); it != enemies.end(); it++) {
-		enemy_sprites.push_back(new Sprite_Battler(&*it));
+		enemy_sprites.push_back(new Sprite_Battler(static_cast<Game_Battler*>(&*it)));
 	}
 
 	Update();
