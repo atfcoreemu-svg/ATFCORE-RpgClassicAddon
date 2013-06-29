@@ -26,6 +26,7 @@
 #include <boost/scoped_ptr.hpp>
 #include <boost/ptr_container/ptr_vector.hpp> 
 
+class Game_Enemy;
 /**
  * Spriteset_Battle class.
  */
@@ -34,6 +35,7 @@ public:
 	Spriteset_Battle();
 
 	void Update();
+	Sprite_Battler* FindCharacter(Game_Enemy* character) const;
 
 protected:
 	boost::scoped_ptr<Background> background;
