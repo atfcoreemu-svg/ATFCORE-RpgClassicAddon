@@ -26,113 +26,65 @@ package org.easyrpg.player.game_browser;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
 
 import org.easyrpg.player.R;
 import org.easyrpg.player.button_mapping.ButtonMappingActivity;
-import org.easyrpg.player.player.AssetUtils;
 import org.easyrpg.player.player.EasyRpgPlayerActivity;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
+import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.Toast;
 
 /**
  * Game browser for EasyRPG Player
  */
-public class GameBrowserActivity extends ListActivity {
-	//Files' names
-	final String DATABASE_NAME = "RPG_RT.ldb";
-	final String TREEMAP_NAME = "RPG_RT.lmt";
-	final String INI_FILE = "RPG_RT.ini";
-	
+public class GameBrowserActivity extends Activity {
 	private String path;
-
+	private ListAdapter adapter;
+	LinkedList<ProjectInformation> project_list = new LinkedList<ProjectInformation>();
+	LinkedList<String> error_list = new LinkedList<String>();
+	
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		prepareData();
-		startGameStandalone();
 
-		setContentView(R.layout.game_browser_activity);
-
+		//Scan the folder
 		path = Environment.getExternalStorageDirectory().getPath() + "/easyrpg/games";
-
-		LinkedList<ProjectInformation> project_list = new LinkedList<ProjectInformation>();
-		LinkedList<String> error_list = new LinkedList<String>();
+		GameBrowserHelper.scanGame(this, path, project_list, error_list);
 		
-		String state = Environment.getExternalStorageState();
-		if (Environment.MEDIA_MOUNTED.equals(state)) {
-		
-			File dir = new File(path);
-			if (!dir.exists()) {
-				if (!dir.mkdirs()) {
-					String msg = getString(R.string.creating_dir_failed).replace("$PATH", path);
-					project_list.add(new ProjectInformation(msg));
-				}
-			}
-	
-			if (!dir.canRead() || !dir.isDirectory()) {
-				String msg = getString(R.string.path_not_readable).replace("$PATH", path);
-				project_list.add(new ProjectInformation(msg));
-			} else {
-				File[] list = dir.listFiles();
-				if (list != null) {
-					for (File file : list) {
-						if (!file.getName().startsWith(".") && isRpg2kGame(file)) {
-							project_list.add(new ProjectInformation(file.getName()));
-						}
-					}
-				}
-				if (project_list.size() == 0) {
-					error_list.add(getString(R.string.no_games_found));
-				}
-			}
-		} else {
-			error_list.add(getString(R.string.no_external_storage));
-		}
-
-		// Put the data into the list
+		// Put the result into the proper adapter
 		if (error_list.size() > 0) {
 			//If the game list is empty, we use a simplified adapter
-			LinkedList<String> l = new LinkedList<String>();
-			l.add(getString(R.string.no_games_found));
-			
-			ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-					android.R.layout.simple_list_item_2, android.R.id.text1, l);
-			setListAdapter(adapter);
+			ArrayAdapter<String> a = new ArrayAdapter<String>(this,
+					android.R.layout.simple_list_item_2, android.R.id.text1, error_list);
+			adapter = a;
 		} else {
 			//If the game list is not empty, we use the proper adapter
-			GameListAdapter adapter = new GameListAdapter(this, project_list);
-			setListAdapter(adapter);
+			GameListAdapter a = new GameListAdapter(this, project_list);
+			adapter = a;
 		}
 		
+		//Set the view
+		setContentView(R.layout.game_browser_activity);
+		ListView list_view = (ListView)findViewById(R.id.game_browser_list_view);
+		list_view.setAdapter(adapter);
 		
-		// First launch
+		// First launch : display the "how to use" dialog box	
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		boolean first_launch = preferences.getBoolean("FIRST_LAUNCH", true);
 		if(first_launch){
@@ -143,7 +95,7 @@ public class GameBrowserActivity extends ListActivity {
 			SharedPreferences.Editor editor = preferences.edit();
 			editor.putBoolean("FIRST_LAUNCH", false);
 			editor.commit();
-		}	
+		}
 	}
 	
 	@Override
@@ -182,310 +134,5 @@ public class GameBrowserActivity extends ListActivity {
 
 		builder.create();
 		builder.show();
-	}
-	
-	/**
-	 * Copies required runtime data from assets folder to data directory
-	 */
-	private void prepareData() {
-		AssetManager assetManager = getAssets();
-		String dataDir = getApplication().getApplicationInfo().dataDir;
-		
-		// Copy timidity to data folder
-		if (AssetUtils.exists(assetManager, "timidity")) {
-			if (!(new File(dataDir + "/timidity").exists())) {
-				AssetUtils.copyFolder(assetManager, "timidity", dataDir + "/timidity");
-			}
-		}
-	}
-	
-	/**
-	 * Standalone Mode:
-	 * If there is a game folder in assets that folder is copied to the data
-	 * folder and executed.
-	 */
-	private void startGameStandalone() {
-		AssetManager assetManager = getAssets();
-		String dataDir = getApplication().getApplicationInfo().dataDir;
-		
-		// Standalone mode: Copy game in game folder to data folder and launch it
-		if (AssetUtils.exists(assetManager, "game")) {
-			// Copy game and start directly
-			if (!(new File(dataDir + "/game").exists())) {
-				AssetUtils.copyFolder(assetManager, "game", dataDir + "/game");
-			}
-			
-			Intent intent = new Intent(this, EasyRpgPlayerActivity.class);
-			// Path of game passed to PlayerActivity via intent "project_path"
-			intent.putExtra("project_path", dataDir + "/game");
-			finish();
-			startActivity(intent);
-		}
-	}
-	
-	/**
-	 * Returns name of game folder at index.
-	 * 
-	 * @param index list index
-	 * @return game folder name
-	 */
-	public String getGameAt(int index) {
-		return ((ProjectInformation) getListAdapter().getItem(index)).getTitle();
-	}
-	
-	/**
-	 * Returns path of game folder at index.
-	 * 
-	 * @param index list index
-	 * @return game path
-	 */
-	public String getGamepathAt(int index) {
-		return path + "/" + getGameAt(index);
-	}
-	
-	/**
-	 * Returns Ini File of game at index.
-	 * Optionally creates it.
-	 * 
-	 * @param index list index
-	 * @param create create ini if not found
-	 * @return ini
-	 */
-	public File getIniOfGameAt(int index, boolean create) {
-		File dir = new File(getGamepathAt(index));
-		
-		if (!dir.isDirectory() || !dir.canRead()) {
-			return null;
-		}
-
-		for (File entry : dir.listFiles()) {
-			if (entry.isFile() && entry.canRead()) {
-				if (entry.getName().equalsIgnoreCase(INI_FILE)) {
-					return entry;
-				}
-			}
-		}
-		
-		if (create) {
-			File newIni = new File(dir.getAbsolutePath() + "/RPG_RT.ini");
-			
-			try {
-				newIni.createNewFile();
-			} catch (IOException e) {
-				return null;
-			}
-			
-			return newIni;
-		}
-
-		return null;
-	}
-	
-	/**
-	 * Returns Ini File of game at index.
-	 * 
-	 * @param index list index
-	 * @return ini
-	 */
-	public File getIniOfGameAt(int index) {
-		return getIniOfGameAt(index, false);
-	}
-
-	/**
-	 * Tests if a folder is a RPG2k Game.
-	 * (contains DATABASE_NAME and TREEMAP_NAME)
-	 * @param dir Directory to test
-	 * @return true if RPG2k game
-	 */
-	private boolean isRpg2kGame(File dir) {
-		if (!dir.isDirectory() || !dir.canRead()) {
-			return false;
-		}
-
-		boolean databaseFound = false;
-		boolean treemapFound = false;
-
-		for (File entry : dir.listFiles()) {
-			if (entry.isFile() && entry.canRead()) {
-				if (!databaseFound && entry.getName().equalsIgnoreCase(DATABASE_NAME)) {
-					databaseFound = true;
-				} else if (!treemapFound && entry.getName().equalsIgnoreCase(TREEMAP_NAME)) {
-					treemapFound = true;
-				}
-
-				if (databaseFound && treemapFound) {
-					return true;
-				}
-			}
-		}
-
-		return false;
-	}
-
-	public void launchGame(int position){
-		String filename = getGamepathAt(position);
-		// Test again in case somebody messed with the file system
-		if (isRpg2kGame(new File(filename))) {
-			Intent intent = new Intent(this, EasyRpgPlayerActivity.class);
-			// Path of game passed to PlayerActivity via intent "project_path"
-			intent.putExtra("project_path", filename);
-			startActivity(intent);
-		} else {
-			String msg = getString(R.string.not_valid_game).replace("$PATH", getGameAt(position));
-			Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
-		}
-	}
-	
-	public void regionButton(int position){
-		File iniFile = getIniOfGameAt(position, true);
-
-		String error_msg = getString(R.string.accessing_configuration_failed).replace("$PATH", getGameAt(position));
-		
-		if (iniFile == null) {
-			Toast.makeText(this, error_msg, Toast.LENGTH_LONG).show();
-			return;
-		}
-		
-		try {
-			Dialog dialog = new RegionDialog(this, iniFile);
-			dialog.show();
-		} catch (IOException e) {
-			Toast.makeText(this, error_msg, Toast.LENGTH_LONG).show();
-		}
-	}
-	
-	/**
-	 * Used to select the Region (Codepage) of a game.
-	 */
-	private class RegionDialog extends Dialog {
-		private File iniFile;
-		private IniEncodingReader iniReader;
-		private RadioGroup rg;
-
-		public RegionDialog(Context context, File iniFile) throws IOException {
-			super(context);
-			this.iniFile = iniFile;
-		    setContentView(R.layout.game_browser_region_dialog);
-			setTitle(getString(R.string.select_game_region));
-			setCancelable(true);
-			
-			rg = (RadioGroup)findViewById(R.id.rg);
-			
-			Button cancel = (Button)findViewById(R.id.rd_region_cancel);
-			cancel.setOnClickListener(new RegionOnCloseClickListener(this));
-
-			OpenIni();
-			
-			// Connect after OpenIni to prevent signal by toggle function
-			rg.setOnCheckedChangeListener(new RadioGroupOnClickListener(this, context));
-		}
-
-		private void OpenIni() throws IOException {
-			iniReader = new IniEncodingReader(iniFile);
-			String encoding = iniReader.getEncoding();
-			RadioButton rb = null;
-						
-			if (encoding == null) {
-				rb = (RadioButton)findViewById(R.id.rd_autodetect);
-			} else if (encoding.equals("1252")) {
-				rb = (RadioButton)findViewById(R.id.rd_west);
-			} else if (encoding.equals("1250")) {
-				rb = (RadioButton)findViewById(R.id.rd_east);
-			} else if (encoding.equals("932")) {
-				rb = (RadioButton)findViewById(R.id.rd_jp);
-			} else if (encoding.equals("1251")) {
-				rb = (RadioButton)findViewById(R.id.rd_cyrillic);
-			} else if (encoding.equals("949")) {
-				rb = (RadioButton)findViewById(R.id.rd_korean);
-			} else if (encoding.equals("936")) {
-				rb = (RadioButton)findViewById(R.id.rd_chinese_simple);
-			} else if (encoding.equals("950")) {
-				rb = (RadioButton)findViewById(R.id.rd_chinese_traditional);
-			} else if (encoding.equals("1253")) {
-				rb = (RadioButton)findViewById(R.id.rd_greek);
-			} else if (encoding.equals("1254")) {
-				rb = (RadioButton)findViewById(R.id.rd_turkish);
-			} else if (encoding.equals("1257")) {
-				rb = (RadioButton)findViewById(R.id.rd_baltic);
-			}
-			
-			if (rb != null) {
-				rb.toggle();
-			} else {
-				Toast.makeText(getContext(), getString(R.string.unknown_region),
-						Toast.LENGTH_LONG).show();
-			}
-		}
-		
-		private class RadioGroupOnClickListener implements OnCheckedChangeListener {
-			Dialog parent;
-			Context context;
-			
-			public RadioGroupOnClickListener(Dialog parent, Context context) {
-				this.parent = parent;
-				this.context = context;
-			}
-			
-			@Override
-			public void onCheckedChanged(RadioGroup group, int checkedId) {
-				RadioButton v = (RadioButton)parent.findViewById(checkedId);
-				parent.dismiss();
-				
-				String encoding = null;
-				
-				if (((RadioButton)findViewById(R.id.rd_autodetect)).isChecked()) {
-					encoding = "auto";
-				} else if (((RadioButton)findViewById(R.id.rd_west)).isChecked()) {
-					encoding = "1252";
-				} else if (((RadioButton)findViewById(R.id.rd_east)).isChecked()) {
-					encoding = "1250";
-				} else if (((RadioButton)findViewById(R.id.rd_jp)).isChecked()) {
-					encoding = "932";
-				} else if (((RadioButton)findViewById(R.id.rd_cyrillic)).isChecked()) {
-					encoding = "1251";
-				} else if (((RadioButton)findViewById(R.id.rd_korean)).isChecked()) {
-					encoding = "949";
-				} else if (((RadioButton)findViewById(R.id.rd_chinese_simple)).isChecked()) {
-					encoding = "936";
-				} else if (((RadioButton)findViewById(R.id.rd_chinese_traditional)).isChecked()) {
-					encoding = "950";
-				} else if (((RadioButton)findViewById(R.id.rd_greek)).isChecked()) {
-					encoding = "1253";
-				} else if (((RadioButton)findViewById(R.id.rd_turkish)).isChecked()) {
-					encoding = "1254";
-				} else if (((RadioButton)findViewById(R.id.rd_baltic)).isChecked()) {
-					encoding = "1257";
-				}
-				
-				if (encoding != null) {
-					if (encoding.equals("auto")) {
-						iniReader.deleteEncoding();
-					} else {
-						iniReader.setEncoding(encoding);
-					}
-					try {
-						iniReader.save();
-						String msg = getString(R.string.region_modification_success).replace("$NAME", v.getText().toString());
-						Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
-					} catch (IOException e) {
-						Toast.makeText(context, getString(R.string.region_modification_failed),
-								Toast.LENGTH_LONG).show();
-					}
-				}
-			}
-		}
-		
-		private class RegionOnCloseClickListener implements View.OnClickListener {
-			Dialog parent;
-			
-			public RegionOnCloseClickListener(Dialog parent) {
-				this.parent = parent;
-			}
-			
-			@Override
-			public void onClick(View v) {
-				parent.dismiss();
-			}
-		}
 	}
 }
