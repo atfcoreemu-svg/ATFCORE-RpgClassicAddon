@@ -18,6 +18,7 @@
 #include "player.h"
 #include "graphics.h"
 #include "input.h"
+#include "output.h"
 #include <cstdlib>
 
 #ifdef USE_SDL
