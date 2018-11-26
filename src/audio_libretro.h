@@ -14,8 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with EasyRPG Player. If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef AUDIOLIBRETRO2_H
-#define AUDIOLIBRETRO2_H
+
+#ifndef EP_AUDIO_LIBRETRO_H
+#define EP_AUDIO_LIBRETRO_H
 
 #if defined(USE_LIBRETRO)
 
@@ -33,7 +34,7 @@ public:
    static void EnableAudio(bool enabled);
    static void AudioThreadCallback();
    static void SetRetroAudioCallback(retro_audio_sample_batch_t cb);
-}; // class LibretroAudio
+};
 
 #endif
 #endif
