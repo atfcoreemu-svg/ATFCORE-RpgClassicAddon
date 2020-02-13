@@ -20,26 +20,14 @@
 
 #include "options.h"
 #include <chrono>
-#include <type_traits>
-#include <thread>
-#include "3ds_clock.h"
-#include "psp2_clock.h"
+#include "platform_clock.h"
 
 /**
  * Used for time keeping in Player
  */
 class Game_Clock {
 public:
-#if defined(_3DS)
-	using clock = CtrClock;
-#elif defined(PSP2)
-	using clock = Psp2Clock;
-#else
-	using clock = std::conditional_t<
-		std::chrono::high_resolution_clock::is_steady,
-		std::chrono::high_resolution_clock,
-		std::chrono::steady_clock>;
-#endif
+	using clock = Platform_Clock;
 
 	using rep = clock::rep;
 	using period = clock::period;
@@ -87,11 +75,7 @@ constexpr Game_Clock::duration Game_Clock::TimeStepFromFps(int fps) {
 
 template <typename R, typename P>
 inline void Game_Clock::SleepFor(std::chrono::duration<R,P> dt) {
-#if defined(_3DS) || defined(PSP2)
 	clock::SleepFor(dt);
-#else
-	std::this_thread::sleep_for(dt);
-#endif
 }
 
 #endif
