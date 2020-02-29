@@ -22,11 +22,14 @@
 #include <type_traits>
 #include <thread>
 #include "3ds_clock.h"
+#include "switch_clock.h"
 #include "psp2_clock.h"
 #include "std_clock.h"
 
 #if defined(_3DS)
 using Platform_Clock = CtrClock;
+#elif defined(__SWITCH__)
+using Platform_Clock = NxClock;
 #elif defined(PSP2)
 using Platform_Clock = Psp2Clock;
 #else
