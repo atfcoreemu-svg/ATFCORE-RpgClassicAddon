@@ -25,6 +25,9 @@
 #if defined(_3DS)
 #include "platform/3ds/3ds_clock.h"
 using Platform_Clock = CtrClock;
+#elif defined(GEKKO)
+#include "platform/wii/wii_clock.h"
+using Platform_Clock = WiiClock;
 #elif defined(__SWITCH__)
 #include "platform/switch/switch_clock.h"
 using Platform_Clock = NxClock;
