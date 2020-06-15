@@ -18,6 +18,7 @@
 #ifndef EP_AUDIO_SDL_H
 #define EP_AUDIO_SDL_H
 
+#include <SDL_mutex.h>
 #include "audio_generic.h"
 
 class SdlAudio : public GenericAudio {
@@ -27,6 +28,13 @@ public:
 
 	void LockMutex() const override;
 	void UnlockMutex() const override;
+	void LockMidiOutMutex() const override;
+	void UnlockMidiOutMutex() const override;
+
+	bool midiout_thread_exit = false;
+private:
+	SDL_Thread *midiout_thread = nullptr;
+	SDL_mutex *midiout_mutex;
 }; // class SdlAudio
 
 #endif
