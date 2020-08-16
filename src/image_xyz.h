@@ -19,10 +19,11 @@
 #define EP_IMAGE_XYZ_H
 
 #include <cstdio>
+#include "filesystem_stream.h"
 
 namespace ImageXYZ {
 	bool ReadXYZ(const uint8_t* data, unsigned len, bool transparent, int& width, int& height, void*& pixels);
-	bool ReadXYZ(FILE* stream, bool transparent, int& width, int& height, void*& pixels);
+	bool ReadXYZ(Filesystem_Stream::InputStream& stream, bool transparent, int& width, int& height, void*& pixels);
 }
 
 #endif
