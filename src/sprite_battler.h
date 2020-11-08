@@ -30,28 +30,6 @@ class Game_Battler;
  */
 class Sprite_Battler : public Sprite {
 public:
-	enum AnimationState {
-		AnimationState_Null,
-		AnimationState_Idle,
-		AnimationState_RightHand,
-		AnimationState_LeftHand,
-		AnimationState_SkillUse,
-		AnimationState_Dead,
-		AnimationState_Damage,
-		AnimationState_BadStatus,
-		AnimationState_Defending,
-		AnimationState_WalkingLeft,
-		AnimationState_WalkingRight,
-		AnimationState_Victory,
-		AnimationState_Item,
-	};
-
-	enum LoopState {
-		LoopState_DefaultAnimationAfterFinish,
-		LoopState_LoopAnimation,
-		LoopState_WaitAfterFinish
-	};
-
 	/**
 	 * Constructor.
 	 *
@@ -62,64 +40,29 @@ public:
 
 	~Sprite_Battler() override;
 
-	/**
-	 * Updates sprite state.
-	 */
-	void Update();
-
 	Game_Battler* GetBattler() const;
 
 	void SetBattler(Game_Battler* new_battler);
 
-	void SetAnimationState(int state, LoopState loop = LoopState_LoopAnimation);
-	void SetAnimationLoop(LoopState loop);
-
-	/**
-	 * Updates the current animation state of the actor depending on his state.
-	 */
-	void DetectStateChange();
-
-	/**
-	 * Returns true when the actor is in it's default state (Depending on
-	 * conditions)
-	 *
-	 * @return Whether state is default
-	 */
-	bool IsIdling();
-
-	int GetWidth() const override;
-	int GetHeight() const override;
+	virtual void Update() = 0;
 
 	/**
 	 * Recompute the Z value for the sprite from it's Y coordinate.
 	 */
 	void ResetZ();
 
-	void Draw(Bitmap& dst) override;
-
 protected:
-	void CreateSprite();
-	void DoIdleAnimation();
-	void OnMonsterSpriteReady(FileRequestResult* result);
-	void OnBattlercharsetReady(FileRequestResult* result, int32_t battler_index);
-
-	std::string sprite_name;
-	int hue = 0;
-	Game_Battler* battler;
-	BitmapRef graphic;
-	int anim_state = AnimationState_Idle;
-	int cycle = 0;
-	int sprite_frame = -1;
+	Game_Battler* battler = nullptr;
 	int battle_index = 0;
-	LoopState loop_state = LoopState_DefaultAnimationAfterFinish;
-	bool old_hidden = false;
-	std::unique_ptr<BattleAnimation> animation;
-	// false when a newly set animation didn't loop once
-	bool idling = true;
-	float zoom = 1.0;
-
-	FileRequestBinding request_id;
 };
+
+inline Game_Battler* Sprite_Battler::GetBattler() const {
+	return battler;
+}
+
+inline void Sprite_Battler::SetBattler(Game_Battler* new_battler) {
+	battler = new_battler;
+}
 
 
 #endif
