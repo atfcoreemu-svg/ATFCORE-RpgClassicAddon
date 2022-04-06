@@ -42,10 +42,10 @@ Input::ButtonMappingArray Input::GetDefaultButtonMappings() {
 #endif
 
 #if defined(USE_JOYSTICK_AXIS) && defined(SUPPORT_JOYSTICK_AXIS)
+		{UP, Keys::JOY_STICK_PRIMARY_UP},
+		{DOWN, Keys::JOY_STICK_PRIMARY_DOWN},
 		{LEFT, Keys::JOY_STICK_PRIMARY_LEFT},
 		{RIGHT, Keys::JOY_STICK_PRIMARY_RIGHT},
-		{DOWN, Keys::JOY_STICK_PRIMARY_DOWN},
-		{UP, Keys::JOY_STICK_PRIMARY_UP},
 		{N1, Keys::JOY_STICK_SECONDARY_DOWN_LEFT},
 		{N2, Keys::JOY_STICK_SECONDARY_DOWN},
 		{N3, Keys::JOY_STICK_SECONDARY_DOWN_RIGHT},
@@ -54,9 +54,7 @@ Input::ButtonMappingArray Input::GetDefaultButtonMappings() {
 		{N7, Keys::JOY_STICK_SECONDARY_UP_LEFT},
 		{N8, Keys::JOY_STICK_SECONDARY_UP},
 		{N9, Keys::JOY_STICK_SECONDARY_UP_RIGHT},
-		{FAST_FORWARD, Keys::JOY_TRIGGER_RIGHT_PARTIAL},
-		{FAST_FORWARD_PLUS, Keys::JOY_TRIGGER_RIGHT_FULL},
-		{DEBUG_THROUGH, Keys::JOY_TRIGGER_LEFT_PARTIAL},
+		{FAST_FORWARD, Keys::JOY_TRIGGER_RIGHT_FULL},
 		{DEBUG_MENU, Keys::JOY_TRIGGER_LEFT_FULL},
 #endif
 	};
@@ -72,5 +70,22 @@ Input::DirectionMappingArray Input::GetDefaultDirectionMappings() {
 }
 
 Input::KeyNamesArray Input::GetInputKeyNames() {
-	return {};
+	return {
+		{Keys::JOY_DPAD_UP, "D-Pad Up"},
+		{Keys::JOY_DPAD_DOWN, "D-Pad Down"},
+		{Keys::JOY_DPAD_LEFT, "D-Pad Left"},
+		{Keys::JOY_DPAD_RIGHT, "D-Pad Up"},
+		{Keys::JOY_A, "A"},
+		{Keys::JOY_B, "B"},
+		{Keys::JOY_X, "X"},
+		{Keys::JOY_Y, "Y"},
+		{Keys::JOY_SHOULDER_LEFT, "L"},
+		{Keys::JOY_SHOULDER_RIGHT, "R"},
+		{Keys::JOY_TRIGGER_LEFT_FULL, "L2"},
+		{Keys::JOY_TRIGGER_RIGHT_FULL, "R2"},
+		{Keys::JOY_STICK_PRIMARY, "L3"},
+		{Keys::JOY_STICK_SECONDARY, "R3"},
+		{Keys::JOY_BACK, "Select"},
+		{Keys::JOY_START, "Start"}
+	};
 }
