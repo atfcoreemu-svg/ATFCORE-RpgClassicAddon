@@ -45,7 +45,6 @@ private:
 	std::vector<bool> lines_numbered;
 
 	int line_count = 0, line_no_max_digits = 0;
-	std::string line_no_tpl = "";
 };
 
 #endif
