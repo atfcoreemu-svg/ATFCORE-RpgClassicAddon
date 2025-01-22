@@ -51,7 +51,7 @@
 #  if AUDIO_AESND
 #    include "platform/wii/audio.h"
 #  else
-#    include "sdl_audio.h"
+#    include "sdl2_audio.h"
 #  endif
 
 AudioInterface& Sdl2Ui::GetAudio() {
@@ -205,7 +205,7 @@ Sdl2Ui::Sdl2Ui(long width, long height, const Game_Config& cfg) : BaseUi(cfg)
 #  ifdef AUDIO_AESND
 		audio_ = std::make_unique<WiiAudio>(cfg.audio);
 #  else
-		audio_ = std::make_unique<SdlAudio>(cfg.audio);
+		audio_ = std::make_unique<Sdl2Audio>(cfg.audio);
 #  endif
 #endif
 }
@@ -1269,7 +1269,7 @@ void Sdl2Ui::vGetConfig(Game_ConfigVideo& cfg) const {
 #ifdef EMSCRIPTEN
 	cfg.renderer.Lock("SDL2 (Software, Emscripten)");
 #elif defined(__wii__)
-	cfg.renderer.Lock("SDL2 (Software, Wii)");	
+	cfg.renderer.Lock("SDL2 (Software, Wii)");
 #elif defined(__WIIU__)
 	cfg.renderer.Lock("SDL2 (Software, Wii U)");
 #else
@@ -1304,7 +1304,7 @@ void Sdl2Ui::vGetConfig(Game_ConfigVideo& cfg) const {
 	cfg.pause_when_focus_lost.Lock(false);
 	cfg.pause_when_focus_lost.SetOptionVisible(false);
 #elif defined(__wii__)
-	cfg.fullscreen.SetOptionVisible(false);	
+	cfg.fullscreen.SetOptionVisible(false);
 #elif defined(__WIIU__)
 	// Only makes the screen flicker
 	cfg.fullscreen.SetOptionVisible(false);
