@@ -16,7 +16,7 @@ deste repositório:
 
 ```bash
 bash builds/android/gradlew -p builds/android :app:assembleDebug \
-  "-PtoolchainDirs=/caminho/buildscripts/android/arm64-v8a-toolchain"
+  "-PtoolchainDirs=/caminho/buildscripts/android"
 ```
 
 O prefixo precisa das dependências Android do EasyRPG, incluindo liblcf.

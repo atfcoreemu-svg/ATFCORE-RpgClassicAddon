@@ -9,4 +9,4 @@ if ! find "$prefix" -iname 'liblcf*config.cmake' -print -quit | grep -q .; then
 fi
 
 exec bash "$repo/builds/android/gradlew" -p "$repo/builds/android" :app:assembleDebug \
-    "-PtoolchainDirs=$prefix" -PABI_FILTERS_DEBUG=arm64-v8a
+    "-PtoolchainDirs=$(dirname "$prefix")" -PABI_FILTERS_DEBUG=arm64-v8a
