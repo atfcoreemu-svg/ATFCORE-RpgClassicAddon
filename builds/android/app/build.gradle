@@ -8,7 +8,7 @@ android {
         prefab = true
     }
     defaultConfig {
-        applicationId "org.easyrpg.player"
+        applicationId "dev.openscene.rpgclassic"
         compileSdkVersion 37
         minSdkVersion 23
         targetSdkVersion 37

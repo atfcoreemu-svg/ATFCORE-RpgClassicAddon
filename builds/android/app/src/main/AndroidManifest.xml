@@ -32,6 +32,7 @@
     <!-- Allow access to the vibrator -->
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <permission android:name="dev.openscene.rpgclassic.permission.LAUNCH" android:protectionLevel="signature" />
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -44,6 +45,9 @@
         <meta-data android:name="SDL_ENV.SDL_ACCELEROMETER_AS_JOYSTICK" android:value="0" />
         <meta-data android:name="SDL_ENV.SDL_APP_NAME" android:value="EasyRPG Player" />
         <meta-data android:name="SDL_ENV.SDL_ANDROID_ALLOW_RECREATE_ACTIVITY" android:value="1" />
+
+        <activity android:name="dev.openscene.rpgclassic.PlayActivity" android:exported="true"
+            android:permission="dev.openscene.rpgclassic.permission.LAUNCH" />
 
         <!-- Startup Activity -->
         <activity

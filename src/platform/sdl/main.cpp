@@ -86,6 +86,18 @@ int main(int argc, char* argv[]) {
 	Player::Init(std::move(args));
 	Player::Run();
 
+#ifdef __ANDROID__
+    JNIEnv* env = EpAndroid::env;
+    auto activity = static_cast<jobject>(SDL_GetAndroidActivity());
+    if (env && activity) {
+        jclass type = env->GetObjectClass(activity);
+        jmethodID callback = env->GetMethodID(type, "onPlayerExit", "(I)V");
+        if (callback) env->CallVoidMethod(activity, callback, Player::exit_code);
+        env->DeleteLocalRef(type);
+        env->DeleteLocalRef(activity);
+    }
+#endif
+
 	// Close
 	return Player::exit_code;
 }

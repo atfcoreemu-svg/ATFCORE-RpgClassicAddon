@@ -107,6 +107,16 @@ public class EasyRpgPlayerActivity extends SDLActivity implements NavigationView
         return new EasyRpgSurface(context, this);
     }
 
+    // Called by SDL_main before the SDL thread finishes the Activity.
+    public void onPlayerExit(int code) {
+        if (code == 0) {
+            setResult(RESULT_OK);
+        } else {
+            setResult(RESULT_CANCELED, new Intent().putExtra("error",
+                    "O EasyRPG encerrou com código " + code + ". Consulte o log do jogo."));
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
