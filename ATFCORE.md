@@ -25,3 +25,9 @@ O APK debug deve usar a mesma chave debug do ATFCORE. Para a distribuição
 fora da loja, o APK assinado deve acompanhar o código correspondente,
 incluindo commits e patches das dependências, avisos, licenças e instruções
 reproduzíveis. Esta integração ainda não foi validada no Android.
+
+As versões usadas na preparação local foram buildscripts
+`84cf2f449a0d1c09f17d2bbf3d28f4f573aa718a` e liblcf
+`6854310c3432e553fd4ae672ce861899c80c3bd0`. O comando equivalente é
+`bash tools/build-atfcore-debug.sh <prefixo-arm64>`. O Java pode ser
+verificado independentemente com `:app:compileDebugJavaWithJavac`.
